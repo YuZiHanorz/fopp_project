@@ -1,11 +1,50 @@
-class Polynomial:
-    def _init_(self, n, d, coefficients):
-        self.n = n          # num of variables
-        self.d = d          # individual degree
-        self.coefficients = coefficients    # coeffients for 
+
+def calculate_indices(index, degree, n_variables):
     
-    def eval(self, a):
-        return 1
+    res = []
+    ind = index
+    for n in range (n_variables, 0, -1):
+        val = ind // (degree + 1) ^ (n-1)
+        res.append(val)
+        ind -= val * (degree + 1) ^ (n-1)
+    return res
+
+
+class Polynomial:
+    """
+    Represents a multivariate polynomial
+    """
+    
+    def __init__(self, n: int, d: int, coefficients):
+   
+        self.n = n                          #number of variables
+        self.d = d                          #individual degree
+        self.coefficients = coefficients    #list of coeffiecients
+
+    def eval(self, point):
+        """ Evaluate the polynomial on a point of a certain field
+
+        Args:
+            point (FieldElement): a FieldElement point object
+
+        Returns:
+            int: the evaluation result
+        """        
+        val = 0
+        prod = 1
+        mapped_indices = []
+
+        for i in range (self.d +1)^(self.n):
+            #we need to map the index of coefficient (list) to the list of indices 
+            #representing the monomial on the polynomial (e.g. indices [1, 0, 2] represents (x_1)^1 * (x_2)^0 * (x_3)^2)
+            mapped_indices = calculate_indices(i)
+            
+            for k in range (self.n):
+                prod *= (point[k] ^ mapped_indices[k])
+            val += self.coefficients[i] * prod
+        
+        return val
+
 
 
 class SCVerifier:
@@ -21,15 +60,29 @@ class SCVerifier:
         for i in range(n):
             self.w.append(F.random_element())
     
-    
+    #Return all the randomnesses generated during the protocol by the verifier
     def getw(self):
         return self.w
     
-    def verify(self, p_i):
-        check = True
-        for i in range(self.n):
-            sum = eval(self.p_i[i], )
-            return True
+    # Verifies the main condition of the sumcheck protocol (i.e. \sum{elem \in H} p_i(elem) =? p_{i-1}(w_{i-1}))
+    def verify(self, p_i: list[Polynomial]):
+        
+        sum = 0
+        #receive first polynomial 
+        for elem in self.H:
+            sum += p_i[0].eval(elem)
+        
+        if sum != self.gamma:
+            return False
+        
+        for i in range(1, self.n, 1):
+            sum = 0
+            for elem in self.H:
+                sum += eval(self.p_i[i], elem)
+            if sum != p_i[i-1].eval(self.w[i-1]):
+                return False
+            
+        return True
         
 class SCProver:
     def _init_(self, F, H, n, gamma, d, p):
