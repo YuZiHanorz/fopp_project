@@ -37,7 +37,7 @@ class Polynomial:
         for i in range (self.d +1)^(self.n):
             #we need to map the index of coefficient (list) to the list of indices 
             #representing the monomial on the polynomial (e.g. indices [1, 0, 2] represents (x_1)^1 * (x_2)^0 * (x_3)^2)
-            mapped_indices = calculate_indices(i)
+            mapped_indices = calculate_indices(i, self.d, self.n)
             
             for k in range (self.n):
                 prod *= (point[k] ^ mapped_indices[k])
