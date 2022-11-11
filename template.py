@@ -44,13 +44,13 @@ class SCProver:
     # w is the randomness sent by verifier, a list of field elements 
     def genPi(self, w):
         # the coeffients of p_i, i \in [n]
-        coeffiencients = [[0 for _ in range(self.d+1)] for _ in range(self.n)]
+        coeffiencients = [[0 for _ in range(self.d + 1)] for _ in range(self.n)]
         
         # iterate over all terms of p, calculate the contribution
-        for termIdx in range((self.d+1)^self.n):
+        for termIdx in range((self.d + 1) ^ self.n):
             tidx = termIdx
+            # the tidx_th term of p is of form c_p[idx]\prod x_k^{e_k}
             for k in range(self.n):
-            # the idx_th term of p is of form c_p[idx]\prod x_k^{e_k}
                 e_k = tidx // (self.d + 1) ^ (self.n - 1 - k)
                 tidx -= e_k * (self.d + 1) ^ (self.n - 1 - k)
                 
@@ -58,14 +58,18 @@ class SCProver:
             # the contribution is \sum_{a_{k+1},\cdots,a_{n-1} \in H} p.eval(w_0, \dots, w_{k-1}, 1, a_{k+1}, \cdots, a_{n-1})
                 contribution = 0
                 h = len(self.H)
+                
                 for assignment in range(h ^ (self.n - 1 - k)):
                     aidx = assignment
                     a = []
+                    
                     for i in range(self.n - 1 - k):
                         a_i = aidx // h ^ (self.n - 1 - k - 1 - i)
                         aidx -= a_i * h ^ (self.n - 1 - k - 1 - i)
                         a.append(a_i)
+                    
                     contribution += self.p.eval(w[:k] + [1] + a)
+                
                 coeffiencients[k][e_k] += contribution
         
         p_i = []
