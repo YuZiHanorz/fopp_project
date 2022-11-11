@@ -81,7 +81,10 @@ class SCVerifier:
                 sum += eval(self.p_i[i], elem)
             if sum != p_i[i-1].eval(self.w[i-1]):
                 return False
-            
+        
+        if self.p.eval(self.w) != p_i[self.n - 1].eval(self.w[self.n - 1]):
+            return False
+        
         return True
         
 class SCProver:
