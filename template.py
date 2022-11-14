@@ -4,9 +4,9 @@ def calculate_indices(index, degree, n_variables):
     res = []
     ind = index
     for n in range (n_variables, 0, -1):
-        val = ind // (degree + 1) ^ (n-1)
+        val = ind // (degree + 1) ** (n-1)
         res.append(val)
-        ind -= val * (degree + 1) ^ (n-1)
+        ind -= val * (degree + 1) ** (n-1)
     return res
 
 
@@ -34,14 +34,19 @@ class Polynomial:
         prod = 1
         mapped_indices = []
 
-        for i in range (self.d +1)^(self.n):
+        for i in range ((self.d +1)**(self.n)):
             #we need to map the index of coefficient (list) to the list of indices 
-            #representing the monomial on the polynomial (e.g. indices [1, 0, 2] represents (x_1)^1 * (x_2)^0 * (x_3)^2)
+            #representing the monomial on the polynomial (e.g. indices [1, 0, 2] represents (x_1)**1 * (x_2)**0 * (x_3)**2)
             mapped_indices = calculate_indices(i, self.d, self.n)
+            print(mapped_indices)
+            
+            prod = 1
             
             for k in range (self.n):
-                prod *= (point[k] ^ mapped_indices[k])
+                prod *= (point[k] ** mapped_indices[k])
+                print(prod)
             val += self.coefficients[i] * prod
+            print(f"value : {val}")
         
         return val
 
@@ -103,25 +108,25 @@ class SCProver:
         coeffiencients = [[0 for _ in range(self.d + 1)] for _ in range(self.n)]
         
         # iterate over all terms of p, calculate the contribution
-        for termIdx in range((self.d + 1) ^ self.n):
+        for termIdx in range((self.d + 1) ** self.n):
             tidx = termIdx
-            # the tidx_th term of p is of form c_p[idx]\prod x_k^{e_k}
+            # the tidx_th term of p is of form c_p[idx]\prod x_k**{e_k}
             for k in range(self.n):
-                e_k = tidx // (self.d + 1) ^ (self.n - 1 - k)
-                tidx -= e_k * (self.d + 1) ^ (self.n - 1 - k)
+                e_k = tidx // (self.d + 1) ** (self.n - 1 - k)
+                tidx -= e_k * (self.d + 1) ** (self.n - 1 - k)
                 
-            # will and only will contribute to the coeffient of x_k^{e_k} of p_k
+            # will and only will contribute to the coeffient of x_k**{e_k} of p_k
             # the contribution is \sum_{a_{k+1},\cdots,a_{n-1} \in H} p.eval(w_0, \dots, w_{k-1}, 1, a_{k+1}, \cdots, a_{n-1})
                 contribution = 0
                 h = len(self.H)
                 
-                for assignment in range(h ^ (self.n - 1 - k)):
+                for assignment in range(h ** (self.n - 1 - k)):
                     aidx = assignment
                     a = []
                     
                     for i in range(self.n - 1 - k):
-                        a_i = aidx // h ^ (self.n - 1 - k - 1 - i)
-                        aidx -= a_i * h ^ (self.n - 1 - k - 1 - i)
+                        a_i = aidx // h ** (self.n - 1 - k - 1 - i)
+                        aidx -= a_i * h ** (self.n - 1 - k - 1 - i)
                         a.append(a_i)
                     
                     contribution += self.p.eval(w[:k] + [1] + a)
